@@ -80,7 +80,9 @@ juckins_scrape <- function(train_numbers, start_date, end_date) {
   data
 }
 
-amtrak <- juckins_scrape(amtrak_ldr_nums, "01/01/2022", "12/31/2024")
+amtrak <- juckins_scrape(amtrak_ldr_nums, "01/01/2022", "12/31/2022")
+amtrak_delays_2022_23 <- amtrak %>%
+  filter(sch_ar < as.Date("2024-01-01 00:00:00"))
 
 amtrak %>%
   drop_na(sec_diff) %>%
@@ -90,4 +92,65 @@ amtrak %>%
   merge(., amtrak_stations, by.x = "station", by.y = "Code") %>%
   st_as_sf() %>%
   st_write(., "Data//Amtrak Station Delay Data//station_delays.shp", append = FALSE)
+
+amtrak_stations_df <- amtrak_stations %>%
+  as.data.frame() %>%
+  select(-geometry)
+
+ridership_scrape <- function(station_code) {
+  city <- amtrak_stations_df %>%
+    filter(Code == station_code) %>%
+    pull(City)
+  state <- amtrak_stations_df %>%
+    filter(Code == station_code) %>%
+    pull(State)
+  
+  slug <- paste(str_to_lower(city), "-", str_to_lower(state), "-", str_to_lower(station_code), sep = "")
+  
+  tryCatch({
+    url <- paste("https://www.greatamericanstations.com/stations/", station_code, "/", sep = "")
+    ridership <- url %>%
+      read_html() %>%
+      html_node(xpath = "/html/body/div[4]/div/div[1]/div[2]/div[1]/div") %>%
+      html_text() %>%
+      gsub(x = ., ".*Annual Station Ridership \\(FY 2024\\)", "") %>%
+      parse_number()},
+    error = function(condition) {
+      message("Error in retrieving ", station_code)
+      message(conditionMessage(condition))
+      ridership <<- NA},
+    warning = function(condition) {
+      message("Warning in retrieving ", station_code)
+      message(conditionMessage(condition))
+      ridership <<- NA},
+    finally = function(condition) {
+      message(paste("Processed ", station_code))})
+  
+  data.frame("Code" = station_code,
+             "ridership_24" = ridership)
+}
+
+amtrak_ldr_stations <- amtrak_gtfs_feed$stops$stop_id
+
+amtrak_ridership_24 <- NULL
+
+for (i in amtrak_ldr_stations) {
+  df <- ridership_scrape(i)
+  amtrak_ridership_24 <- rbind(amtrak_ridership_24, df)
+  rm(df, i)
+}
+
+amtrak_ridership_24 <- amtrak_ridership_24 %>%
+  mutate(ridership_24 = ifelse(Code == "ACD", 1233,
+                        ifelse(Code == "LKL", 22861,
+                        ifelse(Code == "MKS", 4977, ridership_24))))
+
+amtrak_stations %>%
+  merge(., amtrak_ridership_24, by = "Code") %>%
+  ggplot() +
+  geom_sf(aes(size = ridership_24))
+
+amtrak_gtfs_feed$stop_times %>% 
+  group_by(stop_id) %>%
+  summarise("count" = n()) %>% View()
 
