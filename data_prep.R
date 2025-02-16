@@ -1,5 +1,19 @@
 library(tidyverse)
 library(rvest)
+library(sf)
+
+amtrak_ldr_nums <- "https://en.wikipedia.org/wiki/Long-distance_Amtrak_routes#Routes" %>%
+  read_html() %>%
+  html_nodes(xpath = "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[2]") %>%
+  html_table() %>%
+  bind_rows()  %>%
+  filter(Name != "Auto Train[note 5]") %>%
+  mutate(Numbers = strsplit(as.character(Numbers), ", ")) %>% 
+  unnest(Numbers) %>%
+  filter(Numbers != 421 & Numbers != 422) %>%
+  pull(Numbers)
+
+amtrak_stations <- st_read("Data//Amtrak Stations//Amtrak_Stations.shp")
 
 juckins_scrape <- function(train_numbers, start_date, end_date) {
   start_month <- format(as.Date(start_date, "%m/%d/%Y"), "%m")
@@ -46,15 +60,19 @@ juckins_scrape <- function(train_numbers, start_date, end_date) {
              sch_ar = as.POSIXct(sch_ar, format = "%m/%d/%Y %I:%M %p")) %>%
       filter(act_ar != "") %>%
       select(-cancellations, -service_disrupt, -sch_ar_date, -sch_ar_time) %>%
+      mutate("late_check" = ifelse(grepl("LATE", comments), "late",
+                            ifelse(grepl("late", comments), "late", "not_late"))) %>%
       mutate(comments = gsub(x = comments, pattern = "\\..*", replacement = ""),
              comments = gsub(x = comments, pattern = "\\|.*", replacement = ""),
-             #comments = gsub(x = comments, pattern = "\\E:.*", replacement = ""),
+             comments = gsub(x = comments, pattern = "LATE\\:.*", replacement = ""),
+             comments = gsub(x = comments, pattern = " HR ", ","),
              comments = gsub("[^0-9,-]", "", comments),
              hour_diff = ifelse(grepl(",", comments), as.numeric(gsub("\\,.*", "", comments)), 0),
              min_diff = ifelse(grepl(",", comments), as.numeric(gsub(".*\\,", "", comments)), comments),
              min_diff = ifelse(is.na(min_diff), 0, as.numeric(min_diff)),
-             sec_diff = (hour_diff * 60 * 60) - (min_diff * 60),
-             act_ar = sch_ar + sec_diff) %>% 
+             sec_diff = (hour_diff * 60 * 60) + (min_diff * 60),
+             sec_diff = ifelse(late_check == "late", sec_diff * 1, sec_diff * -1),
+             act_ar_datetime = sch_ar + sec_diff) %>% 
       drop_na(sch_ar)
     
     data <- rbind(data, df)
@@ -62,20 +80,14 @@ juckins_scrape <- function(train_numbers, start_date, end_date) {
   data
 }
 
-amtrak_ldr_nums <- "https://en.wikipedia.org/wiki/Long-distance_Amtrak_routes#Routes" %>%
-  read_html() %>%
-  html_nodes(xpath = "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/table[2]") %>%
-  html_table() %>%
-  bind_rows()  %>%
-  filter(Name != "Auto Train[note 5]") %>%
-  mutate(Numbers = strsplit(as.character(Numbers), ", ")) %>% 
-  unnest(Numbers) %>%
-  filter(Numbers != 421 & Numbers != 422) %>%
-  pull(Numbers)
-
-amtrak <- juckins_scrape(amtrak_ldr_nums, "01/01/2024", "12/31/2024")
+amtrak <- juckins_scrape(amtrak_ldr_nums, "01/01/2022", "12/31/2024")
 
 amtrak %>%
   drop_na(sec_diff) %>%
   group_by(station) %>%
-  reframe("avg_delay" = mean(sec_diff)) %>% View()
+  reframe("avg_delay" = mean(sec_diff),
+          "obsv" = n()) %>%
+  merge(., amtrak_stations, by.x = "station", by.y = "Code") %>%
+  st_as_sf() %>%
+  st_write(., "Data//Amtrak Station Delay Data//station_delays.shp", append = FALSE)
+
