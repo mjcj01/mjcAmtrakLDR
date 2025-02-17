@@ -20,9 +20,14 @@ service_dates <- gtfs$.$dates_servicepatterns %>%
   filter(date %in% calendar$date) %>%
   merge(., gtfs$.$servicepatterns, by = "servicepattern_id")
 
-gtfs$trips %>%
+amtrak_freq_ridership <- gtfs$trips %>%
   merge(., gtfs$stop_times, by = "trip_id") %>%
   merge(., service_dates, by = "service_id") %>%
-  filter()
+  merge(., gtfs$routes, by = "route_id") %>%
+  filter(route_long_name != "Commuter Rail") %>%
   group_by(date, stop_id) %>%
-  summarise("count" = n()) %>% View()
+  summarise("count" = n()) %>%
+  group_by(stop_id) %>%
+  summarise("avg_trips" = DescTools::Mode(count)) %>%
+  merge(., amtrak_ridership_24, by.x = "stop_id", by.y = "Code")
+  

@@ -145,6 +145,8 @@ amtrak_ridership_24 <- amtrak_ridership_24 %>%
                         ifelse(Code == "LKL", 22861,
                         ifelse(Code == "MKS", 4977, ridership_24))))
 
+write_rds(amtrak_ridership_24, "Data//station_ridership_24.Rds")
+
 amtrak_stations %>%
   merge(., amtrak_ridership_24, by = "Code") %>%
   ggplot() +
