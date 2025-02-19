@@ -18,16 +18,19 @@ calendar = tibble(date = c(as.Date("2025-03-23"),
       "Saturday")[as.POSIXlt(date)$wday + 1]})(date))
 
 service_dates <- gtfs$.$dates_servicepatterns %>%
-  #filter(date %in% calendar$date) %>%
-  merge(., gtfs$.$servicepatterns, by = "servicepattern_id")# %>%
-  #filter(date == as.Date("2025-03-24"))
+  filter(date %in% calendar$date) %>%
+  merge(., gtfs$.$servicepatterns, by = "servicepattern_id") %>%
+  filter(date == as.Date("2025-03-25"))
 
 amtrak_station_characteristics <- gtfs$trips %>%
   merge(., gtfs$stop_times, by = "trip_id") %>%
   merge(., service_dates, by = "service_id") %>%
   merge(., gtfs$routes, by = "route_id") %>%
-  filter(route_long_name != "Commuter Rail") %>%
-  group_by(date, stop_id) %>%
+  filter(route_long_name != "Commuter Rail" &
+         route_long_name != "Amtrak Thruway Connecting Service") %>%
+  select(stop_id, departure_time) %>%
+  unique() %>%
+  group_by(stop_id) %>%
   summarise("count" = n()) %>%
   merge(., amtrak_ridership_24, by.x = "stop_id", by.y = "Code", all.y = TRUE)
 
@@ -43,7 +46,7 @@ station_check <- gtfs$routes %>%
           merge(., gtfs$routes) %>%
           select(route_long_name, stop_id) %>%
           filter(route_long_name != "Commuter Rail" & 
-                   route_long_name != "Amtrak Thruway Connecting Service"),
+                 route_long_name != "Amtrak Thruway Connecting Service"),
         by = c("route_long_name", "stop_id"), all = TRUE) %>%
   distinct() %>%
   mutate("stops_along_route" = ifelse(is.na(stops_along_route), FALSE, TRUE)) %>%

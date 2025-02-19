@@ -80,7 +80,7 @@ juckins_scrape <- function(train_numbers, start_date, end_date) {
   data
 }
 
-amtrak <- juckins_scrape(amtrak_ldr_nums, "01/01/2022", "12/31/2022")
+amtrak <- juckins_scrape(amtrak_ldr_nums, "01/01/2022", "12/31/2024")
 amtrak_delays_2022_23 <- amtrak %>%
   filter(sch_ar < as.Date("2024-01-01 00:00:00"))
 
@@ -146,6 +146,8 @@ amtrak_ridership_24 <- amtrak_ridership_24 %>%
                         ifelse(Code == "MKS", 4977, ridership_24))))
 
 write_rds(amtrak_ridership_24, "Data//station_ridership_24.Rds")
+
+amtrak_ridership_24 <- read_rds("Data//station_ridership_24.Rds")
 
 amtrak_stations %>%
   merge(., amtrak_ridership_24, by = "Code") %>%
