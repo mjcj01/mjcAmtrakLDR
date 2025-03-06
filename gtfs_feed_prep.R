@@ -27,7 +27,11 @@ amtrak_station_characteristics <- gtfs$trips %>%
   merge(., service_dates, by = "service_id") %>%
   merge(., gtfs$routes, by = "route_id") %>%
   filter(route_long_name != "Commuter Rail" &
-         route_long_name != "Amtrak Thruway Connecting Service") %>%
+         route_long_name != "Amtrak Thruway Connecting Service" &
+         route_long_name != "Cardinal" &
+         route_long_name != "Sunset Limited" &
+         trip_short_name != 421 &
+         trip_short_name != 422) %>%
   select(stop_id, departure_time) %>%
   unique() %>%
   group_by(stop_id) %>%
@@ -38,7 +42,9 @@ station_check <- gtfs$routes %>%
   merge(., gtfs$trips, by = "route_id") %>% 
   merge(., gtfs$stop_times, by = "trip_id") %>%
   filter(route_long_name != "Commuter Rail" & 
-         route_long_name != "Amtrak Thruway Connecting Service") %>%
+         route_long_name != "Amtrak Thruway Connecting Service" &
+           trip_short_name != 421 &
+           trip_short_name != 422) %>%
   select(route_long_name, stop_id) %>%
   mutate("stops_along_route" = TRUE) %>%
   merge(.,
@@ -62,8 +68,5 @@ amtrak_station_characteristics <- amtrak_station_characteristics %>%
   merge(., station_check, by = "stop_id", all = TRUE) %>%
   mutate(one_route_only = ifelse(is.na(one_route_only), FALSE, TRUE))
 
-amtrak_station_characteristics %>%
-  merge(., amtrak_stations, by.x = "stop_id", by.y = "Code") %>%
-  st_as_sf() %>%
-  ggplot() +
-  geom_sf(aes(color = one_route_only))
+
+        
