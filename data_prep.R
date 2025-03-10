@@ -71,8 +71,12 @@ juckins_scrape <- function(train_numbers, start_date, end_date) {
              min_diff = ifelse(grepl(",", comments), as.numeric(gsub(".*\\,", "", comments)), comments),
              min_diff = ifelse(is.na(min_diff), 0, as.numeric(min_diff)),
              sec_diff = (hour_diff * 60 * 60) + (min_diff * 60),
-             sec_diff = ifelse(late_check == "late", sec_diff * 1, sec_diff * -1),
-             act_ar_datetime = sch_ar + sec_diff) %>% 
+             sec_diff = ifelse(late_check == "late", sec_diff * 1, sec_diff * -1))
+    
+    df$sec_diff[is.na(df$sec_diff)] <- 0
+    
+    df <- df %>%
+      mutate(act_ar_datetime = sch_ar + sec_diff) %>%
       drop_na(sch_ar)
     
     data <- rbind(data, df)
@@ -83,6 +87,11 @@ juckins_scrape <- function(train_numbers, start_date, end_date) {
 amtrak <- juckins_scrape(amtrak_ldr_nums, "01/01/2022", "12/31/2024")
 amtrak_delays_2022_23 <- amtrak %>%
   filter(sch_ar < as.Date("2024-01-01 00:00:00"))
+
+write_rds(amtrak_delays_2022_23, "Data//Amtrak Station Delay Data//station_delays.rds")
+
+amtrak_delays_2022_23 <- read_rds("Data//Amtrak Station Delay Data//station_delays.rds") %>%
+  mutate(act_ar_datetime = as.POSIXct(ifelse(is.na(sec_diff), sch_ar, sch_ar + sec_diff)))
 
 amtrak %>%
   drop_na(sec_diff) %>%
