@@ -16,6 +16,7 @@ read_arrow_wrapper <- function(filename) {
 }
 
 delay_data <- NULL
+
 for (i in delay_data_folders_2024) {
   files <- list.files(path = i, pattern = ".txt", full.names = TRUE)
   files <- files[-1]
@@ -24,4 +25,3 @@ for (i in delay_data_folders_2024) {
   
   print(paste("Completed", i, sep = " "))
 }
-

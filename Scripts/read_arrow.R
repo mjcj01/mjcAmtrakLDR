@@ -46,7 +46,7 @@ read_arrow <- function(filename) {
   df <- df %>%
     mutate(Comments = ifelse(grepl("Arrived", Comments), gsub(".*\\|", "", Comments), Comments),
            comments = gsub("[^0-9,-]", "", Comments)) %>%
-    select(-Comments) %>%
+    #select(-Comments) %>%
     mutate(comments = as.numeric(comments))
   
   df$comments[is.na(df$comments)] <- 0
@@ -56,9 +56,10 @@ read_arrow <- function(filename) {
            min_diff = ifelse(grepl(",", comments), as.numeric(gsub(".*\\,", "", comments)), comments),
            min_diff = ifelse(is.na(min_diff), 0, as.numeric(min_diff)),
            sec_diff = (hour_diff * 60 * 60) + (min_diff * 60),
-           sec_diff = ifelse(late_check == "late", sec_diff * 1, sec_diff * -1),
+           sec_diff = ifelse(grepl("late", Comments), sec_diff * 1, sec_diff * -1),
            sch_dep_dt = as.POSIXct(paste(SchDepartureDate, ScheduleDepartureTime, sep = " "), format = "%Y-%m-%d %I:%M%p"),
-           act_dep_dt = as.POSIXct(sch_dep_dt + sec_diff, format = "%Y-%m-%d %I:%M%p"))
+           act_dep_dt = as.POSIXct(sch_dep_dt + sec_diff, format = "%Y-%m-%d %I:%M%p")) %>%
+    select(-Comments)
   
   df %>% 
     select(StationCode, sec_diff, sch_dep_dt, act_dep_dt) %>%
