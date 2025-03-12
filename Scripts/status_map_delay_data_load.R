@@ -6,6 +6,8 @@ library(plyr)
 # 
 # unlink("Data//StatusMap Delay Data//2024 Unzipped Data/logs", recursive = TRUE)
 
+source("Scripts//read_arrow.R")
+
 delay_data_folders_2024 <- list.dirs("Data//StatusMap Delay Data//2024 Unzipped Data")
 
 read_arrow_wrapper <- function(filename) {
