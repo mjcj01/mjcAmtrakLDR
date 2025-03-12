@@ -1,3 +1,4 @@
+library(tidyverse)
 library(plyr)
 
 # zipped_folders <- list.files(path = "Data//StatusMap Delay Data//2024", pattern = "*.zip", full.names = TRUE)
@@ -25,3 +26,5 @@ for (i in delay_data_folders_2024) {
   
   print(paste("Completed", i, sep = " "))
 }
+
+write_rds(delay_data, "Data//SM_delay_data.rds")
