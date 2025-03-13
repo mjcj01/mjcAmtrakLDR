@@ -44,7 +44,8 @@ read_arrow <- function(filename) {
   stringi::stri_sub(df$ActualDepartureTime, 3, 2) <- ":"
   
   df <- df %>%
-    mutate(Comments = ifelse(grepl("Arrived", Comments), gsub(".*\\|", "", Comments), Comments),
+    mutate(Comments = gsub(".*\\Departed: ", "", Comments), Comments,
+           "late_check" = grepl("late", Comments),
            comments = gsub("[^0-9,-]", "", Comments)) %>%
     #select(-Comments) %>%
     mutate(comments = as.numeric(comments))
@@ -66,3 +67,9 @@ read_arrow <- function(filename) {
     mutate(train_number = train_no)
 }
 read_arrow("Data//StatusMap Delay Data//2024 Unzipped Data/665/665_20241102.txt")
+
+read_arrow_wrapper <- function(filename) {
+  tryCatch(read_arrow(filename),
+           error = function(e) NULL)
+}
+read_arrow_wrapper("Data//StatusMap Delay Data//2024 Unzipped Data/665/665_20241102.txt")

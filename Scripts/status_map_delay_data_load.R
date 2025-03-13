@@ -11,11 +11,6 @@ source("Scripts//read_arrow.R")
 
 delay_data_folders_2024 <- list.dirs("Data//StatusMap Delay Data//2024 Unzipped Data")
 
-read_arrow_wrapper <- function(filename) {
-  tryCatch(read_arrow(filename),
-           error = function(e) NULL)
-}
-
 delay_data <- NULL
 
 for (i in delay_data_folders_2024) {
