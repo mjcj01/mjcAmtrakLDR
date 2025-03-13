@@ -33,10 +33,3 @@ amtrak_gtfs_feed$stop_times <- amtrak_gtfs_feed$stop_times %>%
 amtrak_gtfs_feed$stops <- amtrak_gtfs_feed$stops %>%
   filter(stop_id %in% amtrak_gtfs_feed$stop_times$stop_id)
 
-write.table(amtrak_gtfs_feed$agency, "Amtrak GTFS (LDR Only)//agency.txt", sep = ",", row.names = FALSE, col.names = TRUE)
-write.table(amtrak_gtfs_feed$calendar, "Amtrak GTFS (LDR Only)//calendar.txt", sep = ",", row.names = FALSE, col.names = TRUE)
-write.table(amtrak_gtfs_feed$feed_info, "Amtrak GTFS (LDR Only)//feed_info.txt", sep = ",", row.names = FALSE, col.names = TRUE)
-write.table(amtrak_gtfs_feed$routes, "Amtrak GTFS (LDR Only)//routes.txt", sep = ",", row.names = FALSE, col.names = TRUE)
-write.table(amtrak_gtfs_feed$stops, "Amtrak GTFS (LDR Only)//stops.txt", sep = ",", row.names = FALSE, col.names = TRUE)
-write.table(amtrak_gtfs_feed$stop_times, "Amtrak GTFS (LDR Only)//stop_times.txt", sep = ",", row.names = FALSE, col.names = TRUE)
-write.table(amtrak_gtfs_feed$trips, "Amtrak GTFS (LDR Only)//trips.txt", sep = ",", row.names = FALSE, col.names = TRUE)
