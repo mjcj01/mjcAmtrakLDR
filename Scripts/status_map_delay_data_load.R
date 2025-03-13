@@ -20,6 +20,7 @@ for (i in delay_data_folders_2024) {
   delay_data <- rbind(delay_data, df)
   
   print(paste("Completed", i, sep = " "))
+  rm(files, df)
 }
 
 write_rds(delay_data, "Data//SM_delay_data.rds")
