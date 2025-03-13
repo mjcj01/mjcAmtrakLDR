@@ -23,4 +23,15 @@ for (i in delay_data_folders_2024) {
   rm(files, df)
 }
 
+station_freq <- table(delay_data$StationCode) %>%
+  as.data.frame() %>%
+  ### Stations with less than 160 obs are either state fair stations or code errors
+  filter(Freq > 160)
+
+delay_data <- delay_data %>%
+  filter(StationCode %in% station_freq$Var1) %>%
+  ### Manual checking of delays over 86,800 seconds (1+ day) revealed formatting
+  ### discrepencies that caused errors in the code running as expected.
+  filter(sec_diff < 86800)
+
 write_rds(delay_data, "Data//SM_delay_data.rds")
