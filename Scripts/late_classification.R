@@ -29,6 +29,7 @@ delay_data_pct_train <- delay_data %>%
 
 delay_data_pct_train$late[is.na(delay_data_pct_train$pct)] <- 0
 
+
 delay_data_pct_train %>%
   ggplot(aes(x = pct, fill = late_class)) + 
   geom_density(alpha = 0.3)

@@ -6,3 +6,5 @@ night_stops_ldr <- st_read("Data//Night Routes//night_routes.shp") %>%
   select(-geometry) %>%
   drop_na(pct_ng_) %>%
   merge(., delay_data_pct, by.x = "stop_id", by.y = "StationCode")
+
+write_rds(night_stops_ldr, "Data//night_stops.rds")
