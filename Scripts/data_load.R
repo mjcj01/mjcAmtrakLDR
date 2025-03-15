@@ -14,5 +14,4 @@ train_number_list <- delay_data %>%
 delay_data <- delay_data %>%
   filter(train_number %in% train_number_list)
 
-ipcd_stations <- st_read("Data//IPCD Shapefile//Intermodal_Passenger_Connectivity_Database_(IPCD).shp") %>%
-  filter(AMTRAKCODE %in% delay_data$StationCode)
+amtrak_stations <- st_read("Data//Amtrak Stations//Amtrak_Stations.shp")
