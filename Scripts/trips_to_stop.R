@@ -1,10 +1,17 @@
 library(tidyverse)
 library(sf)
 
-night_stops_ldr <- st_read("Data//Night Routes//night_routes.shp") %>%
-  as.data.frame() %>%
-  select(-geometry) %>%
-  drop_na(pct_ng_) %>%
-  merge(., delay_data_pct, by.x = "stop_id", by.y = "StationCode")
+delay_data <- read_rds("Data//SM_delay_data.rds") %>%
+  mutate(StationCode = gsub(" ", "", StationCode))
 
-write_rds(night_stops_ldr, "Data//night_stops.rds")
+train_number_list <- delay_data %>%
+  group_by(StationCode, train_number) %>%
+  reframe("count" = n()) %>%
+  filter(count >= 30) %>%
+  pull(train_number) %>%
+  unique()
+
+delay_data <- delay_data %>%
+  filter(train_number %in% train_number_list)
+
+amtrak_stations <- st_read("Data//Amtrak Stations//Amtrak_Stations.shp")
