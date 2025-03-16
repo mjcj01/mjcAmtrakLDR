@@ -15,3 +15,10 @@ delay_data <- delay_data %>%
   filter(train_number %in% train_number_list)
 
 amtrak_stations <- st_read("Data//Amtrak Stations//Amtrak_Stations.shp")
+
+w_isochrone_bg_join_filter <- st_read("Data//Isochrones//Walking//w_isochrone_bg.shp")
+w_isochrone_bg_centroids <- st_read("Data//Isochrones/Walking//w_isochrone_bg_centroids.shp")
+d_isochrone_bg_join_filter <- st_read("Data//Isochrones//Driving//d_isochrone_bg.shp")
+d_isochrone_bg_centroids <- st_read("Data//Isochrones/Driving//d_isochrone_bg_centroids.shp")
+
+night_stops <- read_rds("Data//night_stops.rds")
