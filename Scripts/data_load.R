@@ -22,3 +22,5 @@ d_isochrone_bg_join_filter <- st_read("Data//Isochrones//Driving//d_isochrone_bg
 d_isochrone_bg_centroids <- st_read("Data//Isochrones/Driving//d_isochrone_bg_centroids.shp")
 
 night_stops <- read_rds("Data//night_stops.rds")
+
+ipcd <- st_read("Data//IPCD Shapefile//")
