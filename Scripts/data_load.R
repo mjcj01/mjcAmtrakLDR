@@ -17,3 +17,10 @@ delay_data <- delay_data %>%
 amtrak_stations <- st_read("Data//Amtrak Stations//Amtrak_Stations.shp")
 
 ipcd <- st_read("Data//IPCD Shapefile//Intermodal_Passenger_Connectivity_Database_(IPCD).shp")
+
+w_isochrone_bg_join_filter <- st_read("Data//Isochrones//Walking//w_isochrone_bg.shp")
+w_isochrone_bg_centroids <- st_read("Data//Isochrones/Walking//w_isochrone_bg_centroids.shp")
+d_isochrone_bg_join_filter <- st_read("Data//Isochrones//Driving//d_isochrone_bg.shp")
+d_isochrone_bg_centroids <- st_read("Data//Isochrones/Driving//d_isochrone_bg_centroids.shp")
+
+night_stops <- read_rds("Data//night_stops.rds")

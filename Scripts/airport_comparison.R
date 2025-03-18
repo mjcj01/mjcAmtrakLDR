@@ -5,6 +5,8 @@ library(extrafont)
 # font_import()
 loadfonts(device = "win")
 
+source("Scripts//data_load.R")
+
 p_airports <- ipcd %>%
   filter(FAC_TYPE == 1) %>%
   mutate("index" = 1:n())
@@ -21,6 +23,10 @@ airport_nn <- st_nn(amtrak_stations %>% filter(Code %in% delay_data_pct$StationC
          "percentile" = percent_rank(dist),
          "far" = ifelse(percentile >= 0.75, "Airport is farther than from 75% of other stations", FALSE)) %>%
   merge(., amtrak_stations %>% select(Code, geometry), by = "Code") %>%
+  mutate("distance" = ifelse(dist <= 35, "35 miles or closer to nearest airport",
+                      ifelse(dist > 35 & dist <= 70, "36 - 70 miles to nearest airport",
+                      ifelse(dist > 70 & dist <= 105, "71 - 105 miles to nearest airport",
+                      ifelse(dist > 105, "106 - 140 miles to nearest airport", "check"))))) %>%
   st_as_sf()
 
 p_ic_bus <- ipcd %>%
@@ -37,6 +43,10 @@ ic_bus_nn <- st_nn(amtrak_stations %>% filter(Code %in% delay_data_pct$StationCo
   select(nn, dist, Code, FAC_NAME) %>%
   mutate(dist = dist/1609) %>%
   merge(., amtrak_stations %>% select(Code, geometry), by = "Code") %>%
+  mutate("distance" = ifelse(dist <= 2.5, "2.5 miles or closer to nearest intercity bus station",
+                      ifelse(dist > 2.5 & dist <= 10, "2.5 - 10 miles to nearest intercity bus station",
+                      ifelse(dist > 10 & dist <= 25, "10 - 25 miles to nearest intercity bus station",
+                      ifelse(dist > 25, "Farther than 25 miles to nearest intercity bus station", "check"))))) %>%
   st_as_sf()
 
 airport_nn_plot <- ggplot(data = airport_nn, aes(y = dist)) +
@@ -81,9 +91,19 @@ ic_bus_nn_plot <- ggplot(data = ic_bus_nn, aes(y = dist)) +
                                     angle = 0,
                                     vjust = 0.5))
 
+colors_airport <- c("35 miles or closer to nearest airport" = "#404040",
+                    "36 - 70 miles to nearest airport" = "#808080",
+                    "71 - 105 miles to nearest airport" = "#BFBFBF",
+                    "106 - 140 miles to nearest airport" = "#FFFFFF")
+
 airport_nn_map <- ggplot(airport_nn) +
-  geom_sf(aes(color = dist)) +
-  scale_color_steps(low = "#333333", high = "#FFFFFF", n.breaks = 6) +
+  geom_sf(aes(color = distance)) +
+  scale_color_manual(values = colors_airport,
+                     breaks = c(c("35 miles or closer to nearest airport",
+                                  "36 - 70 miles to nearest airport",
+                                  "71 - 105 miles to nearest airport",
+                                  "106 - 140 miles to nearest airport")),
+                     labels = function(x) str_wrap(x, width = 20)) +
   guides(color = guide_legend(title = str_wrap("Distance from Nearest Airport (in miles)",
                                                width = 15))) +
   theme_void() +
@@ -93,11 +113,23 @@ airport_nn_map <- ggplot(airport_nn) +
                                     size = 24),
         legend.text = element_text(family = "MS Reference Sans Serif",
                                    color = "#FFFFFF",
-                                   size = 12))
+                                   size = 12),
+        legend.key.spacing.y = unit(1.0, 'cm'),
+        legend.key.spacing = unit(1.0, 'cm'))
+
+colors <- c("2.5 miles or closer to nearest intercity bus station" = "#404040",
+            "2.5 - 10 miles to nearest intercity bus station" = "#808080", 
+            "10 - 25 miles to nearest intercity bus station" = "#BFBFBF", 
+            "Farther than 25 miles to nearest intercity bus station" = "#FFFFFF")
 
 ic_bus_nn_map <- ggplot(ic_bus_nn) +
-  geom_sf(aes(color = dist)) +
-  scale_color_steps(low = "#333333", high = "#FFFFFF", n.breaks = 8) +
+  geom_sf(aes(color = distance), size = 2) +
+  scale_color_manual(values = colors,
+                     breaks = c(c("2.5 miles or closer to nearest intercity bus station",
+                                  "2.5 - 10 miles to nearest intercity bus station", 
+                                  "10 - 25 miles to nearest intercity bus station", 
+                                  "Farther than 25 miles to nearest intercity bus station")),
+                     labels = function(x) str_wrap(x, width = 20)) +
   guides(color = guide_legend(title = str_wrap("Distance from Nearest Intercity Bus Station (in miles)",
                                                width = 15))) +
   theme_void() +
@@ -107,18 +139,20 @@ ic_bus_nn_map <- ggplot(ic_bus_nn) +
                                     size = 24),
         legend.text = element_text(family = "MS Reference Sans Serif",
                                    color = "#FFFFFF",
-                                   size = 12))
+                                   size = 12),
+        legend.key.spacing.y = unit(1.0, 'cm'),
+        legend.key.spacing = unit(1.0, 'cm'))
 
-ggsave(plot = airport_nn_plot,
-       filename = "Documents//Exports//airport_nn_plot.png",
-       width = 3840, height = 2160, units = "px")
-ggsave(plot = ic_bus_nn_plot,
-       filename = "Documents//Exports//ic_bus_nn_plot.png",
-       width = 3840, height = 2160, units = "px")
-
-ggsave(plot = airport_nn_map,
-       filename = "Documents//Exports//airport_nn_map.png",
-       width = 3840, height = 2160, units = "px")
-ggsave(plot = ic_bus_nn_map,
-       filename = "Documents//Exports//ic_bus_nn_map.png",
-       width = 3840, height = 2160, units = "px")
+# ggsave(plot = airport_nn_plot,
+#        filename = "Documents//Exports//airport_nn_plot.png",
+#        width = 3840, height = 2160, units = "px")
+# ggsave(plot = ic_bus_nn_plot,
+#        filename = "Documents//Exports//ic_bus_nn_plot.png",
+#        width = 3840, height = 2160, units = "px")
+# 
+# ggsave(plot = airport_nn_map,
+#        filename = "Documents//Exports//airport_nn_map.png",
+#        width = 3840, height = 2160, units = "px")
+# ggsave(plot = ic_bus_nn_map,
+#        filename = "Documents//Exports//ic_bus_nn_map.png",
+#        width = 3840, height = 2160, units = "px")
