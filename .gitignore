@@ -2,3 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+.backups/
+GpMessages/
+ImportLog/
+mjcAmtrakLDR.gdb
+mjcAmtrakLDR_index/
+*.gdb

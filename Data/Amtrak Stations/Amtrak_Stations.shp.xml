@@ -6,7 +6,7 @@
 		<ArcGISFormat>1.0</ArcGISFormat>
 		<SyncOnce>TRUE</SyncOnce>
 		<DataProperties>
-			<itemProps/></DataProperties>
+			<itemProps/><lineage><Process ToolSource="c:\program files\arcgis\pro\Resources\ArcToolbox\toolboxes\Analysis Tools.tbx\Near" Date="20250313" Time="114836">Near Amtrak_Stations Amtrak_Routes_D_S_SmoothLine # LOCATION NO_ANGLE Planar "NEAR_FID NEAR_FID;NEAR_DIST NEAR_DIST;NEAR_X NEAR_X;NEAR_Y NEAR_Y" #</Process></lineage></DataProperties>
 	</Esri>
 	<mdChar>
 		<CharSetCd value="004">
