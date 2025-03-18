@@ -81,18 +81,44 @@ ic_bus_nn_plot <- ggplot(data = ic_bus_nn, aes(y = dist)) +
                                     angle = 0,
                                     vjust = 0.5))
 
-legend_label <- "Airport is farther than from 75% of other stations"
-
-ggplot(airport_nn) +
+airport_nn_map <- ggplot(airport_nn) +
   geom_sf(aes(color = dist)) +
-  scale_color_binned() +
+  scale_color_steps(low = "#333333", high = "#FFFFFF", n.breaks = 6) +
+  guides(color = guide_legend(title = str_wrap("Distance from Nearest Airport (in miles)",
+                                               width = 15))) +
   theme_void() +
-theme(plot.background = element_rect(fill = "#000000"),
-      text = element_text(color = "#FFFFFF"))
+  theme(plot.background = element_rect(fill = "#000000"),
+        legend.title = element_text(family = "MS Reference Sans Serif",
+                                    color = "#FFFFFF",
+                                    size = 24),
+        legend.text = element_text(family = "MS Reference Sans Serif",
+                                   color = "#FFFFFF",
+                                   size = 12))
+
+ic_bus_nn_map <- ggplot(ic_bus_nn) +
+  geom_sf(aes(color = dist)) +
+  scale_color_steps(low = "#333333", high = "#FFFFFF", n.breaks = 8) +
+  guides(color = guide_legend(title = str_wrap("Distance from Nearest Intercity Bus Station (in miles)",
+                                               width = 15))) +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "#000000"),
+        legend.title = element_text(family = "MS Reference Sans Serif",
+                                    color = "#FFFFFF",
+                                    size = 24),
+        legend.text = element_text(family = "MS Reference Sans Serif",
+                                   color = "#FFFFFF",
+                                   size = 12))
 
 ggsave(plot = airport_nn_plot,
        filename = "Documents//Exports//airport_nn_plot.png",
        width = 3840, height = 2160, units = "px")
 ggsave(plot = ic_bus_nn_plot,
        filename = "Documents//Exports//ic_bus_nn_plot.png",
+       width = 3840, height = 2160, units = "px")
+
+ggsave(plot = airport_nn_map,
+       filename = "Documents//Exports//airport_nn_map.png",
+       width = 3840, height = 2160, units = "px")
+ggsave(plot = ic_bus_nn_map,
+       filename = "Documents//Exports//ic_bus_nn_map.png",
        width = 3840, height = 2160, units = "px")
