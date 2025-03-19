@@ -23,4 +23,4 @@ glm(data = nn_station_merge,
    formula = rdrs_24 ~ airport_dist + ic_bus_dist) %>% summary()
 
 merge(nn_station_merge, amtrak_stations %>% select(Code, geometry), by = "Code") %>%
-  st_write(., "Data//station_characteristics.shp")
+  st_write(., "Data//station_characteristics.shp", append = FALSE)
