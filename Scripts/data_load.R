@@ -24,3 +24,18 @@ d_isochrone_bg_join_filter <- st_read("Data//Isochrones//Driving//d_isochrone_bg
 d_isochrone_bg_centroids <- st_read("Data//Isochrones/Driving//d_isochrone_bg_centroids.shp")
 
 night_stops <- read_rds("Data//night_stops.rds")
+
+station_data <- d_isochrone_bg_join_filter %>%
+  as.data.frame() %>%
+  select(-geometry, -P1_001N) %>%
+  pivot_longer(cols = contains("P2_")) %>%
+  filter(name == "P2_001N") %>%
+  group_by(id, name) %>%
+  reframe("T_POP" = sum(value)) %>%
+  merge(., amtrak_stations, by.x = "id", by.y = "Code") %>%
+  select(id, T_POP, geometry) %>%
+  merge(., delay_data_pct, by.x = "id", by.y = "StationCode") %>%
+  merge(., night_stops, by.x = "id", by.y = "stop_id") %>%
+  select(-pct, -late_class) %>%
+  unique() %>%
+  st_as_sf()

@@ -1,5 +1,7 @@
 library(tidyverse)
 
+
+
 airport_nn_short <- airport_nn %>%
   as.data.frame() %>%
   select(Code, dist, FAC_NAME) %>%
@@ -19,3 +21,6 @@ nn_station_merge <- merge(nn_merge, station_data, by.x = "Code", by.y = "id") %>
 
 glm(data = nn_station_merge,
    formula = rdrs_24 ~ airport_dist + ic_bus_dist) %>% summary()
+
+merge(nn_station_merge, amtrak_stations %>% select(Code, geometry), by = "Code") %>%
+  st_write(., "Data//station_characteristics.shp")

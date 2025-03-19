@@ -18,4 +18,4 @@ station_data <- w_isochrone_bg_join_filter %>%
   unique() %>%
   st_as_sf()
 
-st_write(station_data, "Data//Amtrak Station Characteristics//station_characteristics.shp")
+# st_write(station_data, "Data//Amtrak Station Characteristics//station_characteristics.shp")
