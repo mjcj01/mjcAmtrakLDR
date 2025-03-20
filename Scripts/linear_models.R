@@ -21,7 +21,7 @@ nn_station_merge <- merge(nn_merge, station_data, by.x = "Code", by.y = "id") %>
   mutate("cont_rdrs" = (rdrs_24/count)/T_POP)
 
 lm(data = nn_station_merge,
-   formula = cont_rdrs ~ airport_dist + ic_bus_dist + on_rt_n + pct_ng_ + late) %>% summary()
+   formula = cont_rdrs ~ ic_bus_dist) %>% summary()
 
 lm(data = nn_station_merge %>% filter(nght_s_ <= 2),
    formula = cont_rdrs ~ not_late) %>% summary()
