@@ -26,8 +26,37 @@ ggsave(plot = ggplot(nn_station_merge, aes(x = count, y = rdrs_24)) +
 
 station_data %>%
   filter(on_rt_n == 1) %>%
-  mutate(nght_s_ = ifelse(id == "SPK", 2, nght_s_)) %>%
+  mutate(nght_s_ = ifelse(id == "SPK", 2,
+                   ifelse(id == "SAS", 2,
+                          nght_s_))) %>%
   group_by(nght_s_) %>%
   reframe(late_avg = mean(late),
           min_late_avg = mean(min_late),
           not_late_avg = mean(not_late))
+
+colors_night <- c("2" = "#f0f0f0",
+                  "1" = "#bdbdbd",
+                  "0" = "#636363")
+
+ggsave(station_data %>%
+         filter(on_rt_n == 1) %>%
+         mutate(nght_s_ = ifelse(id == "SPK", 2,
+                                 ifelse(id == "SAS", 2,
+                                        nght_s_))) %>%
+         group_by(nght_s_) %>%
+         mutate("count_fct" = as.factor(nght_s_)) %>%
+         ggplot() +
+         geom_sf(aes(color = count_fct)) +
+         scale_color_manual(values = colors_night) +
+         guides(color = guide_legend(title = str_wrap("Number of Overnight Stops",
+                                                      width = 15))) +
+         theme_void() +
+         theme(plot.background = element_rect(fill = "#000000"),
+               legend.title = element_text(family = "MS Reference Sans Serif",
+                                           color = "#FFFFFF",
+                                           size = 24),
+               legend.text = element_text(family = "MS Reference Sans Serif",
+                                          color = "#FFFFFF",
+                                          size = 12)),
+       filename = "Documents//Exports//overnight_stop_map.png",
+       width = 3840, height = 2160, units = "px")
