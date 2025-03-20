@@ -38,10 +38,14 @@ walking_isochrone <- amtrak_ldr_stations %>%
   st_as_sf() %>%
   st_transform(crs = 4326)
 
+st_write(walking_isochrone, "Data//Isochrones//Walking//walking_isochrone.shp")
+
 driving_isochrone <- amtrak_ldr_stations %>%
   mb_isochrone(., profile = "driving", time = 30, id_column = "Code") %>%
   st_as_sf() %>%
   st_transform(crs = 4326)
+
+st_write(driving_isochrone, "Data//Isochrones//Driving//driving_isochrone.shp")
 
 w_isochrone_bg_join <- st_join(census_block_groups, walking_isochrone)
 
@@ -70,7 +74,6 @@ d_isochrone_bg_join_filter <- d_isochrone_bg_join %>%
   st_as_sf() %>%
   pivot_wider(names_from = "variable",
               values_from = "value")
-
 
 w_isochrone_bg_centroids <- st_centroid(w_isochrone_bg_join_filter)
 

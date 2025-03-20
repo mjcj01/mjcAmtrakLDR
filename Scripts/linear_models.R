@@ -1,6 +1,6 @@
 library(tidyverse)
 
-source("Scripts//data_load.R")
+#source("Scripts//data_load.R")
 source("Scripts//airport_comparison.R")
 
 airport_nn_short <- airport_nn %>%
@@ -21,10 +21,13 @@ nn_station_merge <- merge(nn_merge, station_data, by.x = "Code", by.y = "id") %>
   mutate("cont_rdrs" = (rdrs_24/count)/T_POP)
 
 lm(data = nn_station_merge,
-   formula = cont_rdrs ~ late) %>% summary()
+   formula = cont_rdrs ~ airport_dist + ic_bus_dist + on_rt_n + pct_ng_ + late) %>% summary()
 
-ggplot(data = nn_station_merge, aes(x = cont_rdrs, y = not_late)) +
-  geom_point()
+lm(data = nn_station_merge %>% filter(nght_s_ <= 2),
+   formula = cont_rdrs ~ not_late) %>% summary()
 
-merge(nn_station_merge, amtrak_stations %>% select(Code, geometry), by = "Code") %>%
-  st_write(., "Data//station_characteristics.shp", append = FALSE)
+ggplot(nn_station_merge %>% filter(nght_s_ <= 2), aes(x = nght_s_, y = rdrs_24, group = nght_s_)) +
+  geom_violin()
+
+# merge(nn_station_merge, amtrak_stations %>% select(Code, geometry), by = "Code") %>%
+#   st_write(., "Data//station_characteristics.shp", append = FALSE)
