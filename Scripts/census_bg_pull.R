@@ -3,8 +3,8 @@ library(tidycensus)
 library(sf)
 library(mapboxapi)
 
-# source("Scripts//data_load.R")
-# source("Scripts//amtrak_gtfs_ldr_filter.R")
+source("Scripts//data_load.R")
+source("Scripts//amtrak_gtfs_ldr_filter.R")
 
 states <- tigris::states() %>% pull(STUSPS)
 
@@ -16,10 +16,10 @@ amtrak_states <- st_read("Data//Amtrak Stations//Amtrak_Stations.shp") %>%
 
 census_block_groups <- NULL
 
-variables <- c("P2_001N", "P2_002N", "P2_005N", "P2_006N", "P2_007N", "P2_008N", "P2_009N", "P2_010N", "P2_011N")
+variables <- c("P2_002N", "P2_005N", "P2_006N", "P2_007N", "P2_008N", "P2_009N", "P2_010N", "P2_011N")
 
 for (i in amtrak_states) {
-  df <- get_decennial(geography = "block group",
+  df <- get_decennial(geography = "block",
                        variables = variables,
                        year = 2020,
                        state = i,
