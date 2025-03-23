@@ -102,3 +102,99 @@ nn_station_merge %>%
         legend.text = element_text(family = "MS Reference Sans Serif",
                                    color = "#FFFFFF",
                                    size = 12))
+
+ggsave(plot = ggplot(median_rdrs_night, aes(x = as.factor(pct_ng_), y = median, group = 1)) +
+         geom_point(color = "#FFFFFF", size = 3) +
+         geom_line(data = median_rdrs_night, aes(as.factor(pct_ng_), y = median), color = "#FFFFFF", size = 2) +
+         geom_text(data = median_rdrs_night, 
+                   aes(x = pct_ng_ + 0.9, y = median - 300, label = round(median, digits = 0)), 
+                   color = "#FFFFFF") +
+         labs(x = "Number of Overnight Stops",
+              y = str_wrap("Median Ridership in 2024", width = 10)) +
+         ylim(0, 10000) +
+         theme_minimal() +
+         theme(plot.background = element_rect(fill = "#000000"),
+               text = element_text(color = "#FFFFFF"),
+               panel.grid.minor = element_blank(),
+               panel.grid.major = element_line(color = "#666666"),
+               axis.text = element_text(family = "MS Reference Sans Serif",
+                                        size = 10,
+                                        color = "#FFFFFF"),
+               axis.title = element_text(family = "MS Reference Sans Serif",
+                                         size = 16,
+                                         margin = margin(t = 0, r = 15, l = 0, b = 0),
+                                         angle = 0,
+                                         vjust = 0.5),
+               axis.title.y = element_text(family = "MS Reference Sans Serif",
+                                           size = 16,
+                                           margin = margin(t = 0, r = 15, l = 0, b = 0),
+                                           angle = 0,
+                                           vjust = 0.5)),
+       "Documents//Exports//median_rdrs_overnight.png",
+       width = 3840, height = 2160, units = "px")
+
+ggsave(plot = ggplot(median_pop_night, aes(x = as.factor(pct_ng_), y = median, group = 1)) +
+         geom_point(color = "#FFFFFF", size = 3) +
+         geom_line(data = median_rdrs_night, aes(as.factor(pct_ng_), y = median), color = "#FFFFFF", size = 2) +
+         geom_text(data = median_rdrs_night, aes(x = pct_ng_ + 0.8, y = median, label = round(median, digits = 0)), color = "#FFFFFF") +
+         labs(x = "Number of Overnight Stops",
+              y = str_wrap("Median Number of People Living Within a 30 Minute Drive in 2024", width = 15)) +
+         ylim(50000, 200000) +
+         theme_minimal() +
+         theme(plot.background = element_rect(fill = "#000000"),
+               text = element_text(color = "#FFFFFF"),
+               panel.grid.minor = element_blank(),
+               panel.grid.major = element_line(color = "#666666"),
+               axis.text = element_text(family = "MS Reference Sans Serif",
+                                        size = 10,
+                                        color = "#FFFFFF"),
+               axis.title = element_text(family = "MS Reference Sans Serif",
+                                         size = 16,
+                                         margin = margin(t = 0, r = 15, l = 0, b = 0),
+                                         angle = 0,
+                                         vjust = 0.5),
+               axis.title.y = element_text(family = "MS Reference Sans Serif",
+                                           size = 16,
+                                           margin = margin(t = 0, r = 15, l = 0, b = 0),
+                                           angle = 0,
+                                           vjust = 0.5)),
+       "Documents//Exports//median_pop_overnight.png",
+       width = 3840, height = 2160, units = "px")
+
+
+median_delay_night <- nn_station_merge %>%
+  filter(on_rt_n == 1) %>%
+  group_by(pct_ng_) %>%
+  reframe("med_delay" = median(late))
+
+ggsave(plot = nn_station_merge %>% 
+         filter(on_rt_n == 1) %>% 
+         select(Code, rdrs_24, not_late, min_late) %>% 
+         mutate("mostly_ot" = not_late + min_late) %>% 
+         ggplot(aes(x = mostly_ot, y = rdrs_24)) + 
+         geom_point(color = "#FFFFFF") +
+         labs(x = str_wrap("% Departing Within 10 Minutes of Scheduled Time",
+                           width = 100),
+              y = str_wrap("Ridership in 2024",
+                           width = 10)) +
+         theme_minimal() +
+         theme(plot.background = element_rect(fill = "#000000"),
+               text = element_text(color = "#FFFFFF"),
+               panel.grid.minor = element_blank(),
+               panel.grid.major = element_line(color = "#666666"),
+               axis.text = element_text(family = "MS Reference Sans Serif",
+                                        size = 10,
+                                        color = "#FFFFFF"),
+               axis.title = element_text(family = "MS Reference Sans Serif",
+                                         size = 16,
+                                         margin = margin(t = 0, r = 15, l = 0, b = 0),
+                                         angle = 0,
+                                         vjust = 0.5),
+               axis.title.y = element_text(family = "MS Reference Sans Serif",
+                                           size = 16,
+                                           margin = margin(t = 0, r = 15, l = 0, b = 0),
+                                           angle = 0,
+                                           vjust = 0.5)),
+       "Documents//Exports//rdrs_otp.png",
+       width = 3840, height = 2160, units = "px")
+  
