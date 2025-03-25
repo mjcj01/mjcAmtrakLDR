@@ -169,13 +169,13 @@ median_delay_night <- nn_station_merge %>%
 
 ggsave(plot = nn_station_merge %>% 
          filter(on_rt_n == 1) %>% 
-         select(Code, rdrs_24, not_late, min_late) %>% 
+         select(Code, rdrs_24, cont_rdrs, not_late, min_late) %>% 
          mutate("mostly_ot" = not_late + min_late) %>% 
-         ggplot(aes(x = mostly_ot, y = rdrs_24)) + 
+         ggplot(aes(x = mostly_ot, y = cont_rdrs)) + 
          geom_point(color = "#FFFFFF") +
          labs(x = str_wrap("% Departing Within 10 Minutes of Scheduled Time",
                            width = 100),
-              y = str_wrap("Ridership in 2024",
+              y = str_wrap("2024 Ridership, Controlled for Number of Trains and Surrounding Population",
                            width = 10)) +
          theme_minimal() +
          theme(plot.background = element_rect(fill = "#000000"),

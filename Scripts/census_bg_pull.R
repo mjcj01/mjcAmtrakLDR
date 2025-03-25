@@ -30,6 +30,8 @@ for (i in amtrak_states) {
 census_block_groups <- census_block_groups %>%
   st_transform(crs = 4326)
 
+census_block_centroids <- st_centroid(census_block_groups)
+
 amtrak_ldr_stations <- amtrak_stations %>%
   filter(Code %in% amtrak_gtfs_feed$stops$stop_id)
 
@@ -51,18 +53,6 @@ w_isochrone_bg_join <- st_join(census_block_groups, walking_isochrone)
 
 d_isochrone_bg_join <- st_join(census_block_groups, driving_isochrone)
 
-w_isochrone_bg_names <- w_isochrone_bg_join %>%
-  as.data.frame() %>%
-  select(-geometry) %>% 
-  filter(!is.na(time)) %>% 
-  unique()
-
-d_isochrone_bg_names <- d_isochrone_bg_join %>%
-  as.data.frame() %>%
-  select(-geometry) %>% 
-  filter(!is.na(time)) %>% 
-  unique()
-
 w_isochrone_bg_join_filter <- w_isochrone_bg_join %>%
   filter(NAME %in% w_isochrone_bg_names$NAME) %>%
   st_as_sf() %>%
@@ -74,10 +64,6 @@ d_isochrone_bg_join_filter <- d_isochrone_bg_join %>%
   st_as_sf() %>%
   pivot_wider(names_from = "variable",
               values_from = "value")
-
-w_isochrone_bg_centroids <- st_centroid(w_isochrone_bg_join_filter)
-
-d_isochrone_bg_centroids <- st_centroid(d_isochrone_bg_join_filter)
 
 st_write(w_isochrone_bg_join_filter, "Data//Isochrones//Walking//w_isochrone_bg.shp")
 st_write(w_isochrone_bg_centroids, "Data//Isochrones/Walking//w_isochrone_bg_centroids.shp")
